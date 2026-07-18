@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "21b43fd9-f75e-44b4-b760-3162e24cabe2",
+  "id": "5c273bc6-0d51-4eb4-b790-0058440a9318",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -63,11 +63,11 @@
       "table": "users"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "pg_catalog.gen_random_uuid()",
       "generated": null,
       "identity": null,
       "name": "id",
@@ -102,7 +102,7 @@
       "table": "account"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -232,11 +232,11 @@
       "table": "account"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "pg_catalog.gen_random_uuid()",
       "generated": null,
       "identity": null,
       "name": "id",
@@ -323,7 +323,7 @@
       "table": "session"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -336,11 +336,11 @@
       "table": "session"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "pg_catalog.gen_random_uuid()",
       "generated": null,
       "identity": null,
       "name": "id",
@@ -427,11 +427,11 @@
       "table": "user"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "pg_catalog.gen_random_uuid()",
       "generated": null,
       "identity": null,
       "name": "id",
