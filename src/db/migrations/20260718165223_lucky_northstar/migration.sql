@@ -1,8 +1,3 @@
-CREATE TABLE "users" (
-	"id" integer PRIMARY KEY,
-	"name" varchar(256)
-);
---> statement-breakpoint
 CREATE TABLE "account" (
 	"id" uuid PRIMARY KEY DEFAULT pg_catalog.gen_random_uuid(),
 	"account_id" text NOT NULL,
