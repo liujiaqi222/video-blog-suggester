@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest",
+    "test:run": "vitest run",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -17,11 +19,13 @@
     "@better-auth/drizzle-adapter": "^1.7.0-rc.1",
     "@neondatabase/serverless": "^1.1.0",
     "better-auth": "^1.7.0-rc.1",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "next": "16.2.10",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "workflow": "^4.6.0"
   },
   "devDependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",
@@ -37,6 +41,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5",
+    "vitest": "^4.1.10",
     "zod": "^4.4.3"
   }
 }
