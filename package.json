@@ -16,8 +16,10 @@
     "auth:generate": "auth generate --output ./src/db/schemas/auth.ts --config ./src/lib/auth.ts --yes"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^4.0.16",
     "@better-auth/drizzle-adapter": "^1.7.0-rc.1",
     "@neondatabase/serverless": "^1.1.0",
+    "ai": "^7.0.31",
     "better-auth": "^1.7.0-rc.1",
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",

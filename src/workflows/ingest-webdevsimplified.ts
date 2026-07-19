@@ -6,6 +6,7 @@ import { chunks, content } from "@/db/schema";
 import { batchExec } from "./utils/batchExec";
 import { z } from "zod";
 import { chunkArticleText } from "../lib/chunking/chunkArticle";
+import { embedChunks } from "@/lib/embedding/embed-chunks";
 
 const RSS_URL = "https://blog.webdevsimplified.com/rss.xml";
 // 控制单批并发抓取数，避免 RSS 有大量历史文章时瞬间发出过多请求。
@@ -137,7 +138,8 @@ export async function ingestArticle(article: Article) {
   }
 
   // ── 步骤 2.3：按章节切分正文 ──────────────────────
-  const articleChunks = chunkArticleText(main);
+  const chunkTexts = chunkArticleText(main);
+  const embeddings = await embedChunks(chunkTexts)
 
   // ── 步骤 2.4：原子写入文章与文本分块 ──────────────────────────────
   return db.transaction(async (tx) => {
@@ -160,11 +162,12 @@ export async function ingestArticle(article: Article) {
       return { ingested: false };
     }
 
-    if (articleChunks.length > 0) {
+    if (chunkTexts.length > 0) {
       await tx.insert(chunks).values(
-        articleChunks.map((text) => ({
+        chunkTexts.map((chunkText,i) => ({
           contentId: insertedContent.id,
-          text,
+          text:chunkText,
+          embedding:embeddings[i]
         })),
       );
     }

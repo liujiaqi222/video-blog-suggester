@@ -5,9 +5,13 @@ const mocks = vi.hoisted(() => ({
     select: vi.fn(),
     transaction: vi.fn(),
   },
+  embedChunks: vi.fn(),
 }));
 
 vi.mock("@/db/db", () => ({ db: mocks.db }));
+vi.mock("@/lib/embedding/embed-chunks", () => ({
+  embedChunks: mocks.embedChunks,
+}));
 
 import { ingestArticle } from "./ingest-webdevsimplified";
 
@@ -64,6 +68,11 @@ describe("ingestArticle", () => {
     vi.restoreAllMocks();
     mocks.db.select.mockReset();
     mocks.db.transaction.mockReset();
+    mocks.embedChunks.mockReset();
+    mocks.embedChunks.mockResolvedValue([
+      [0.1, 0.2],
+      [0.3, 0.4],
+    ]);
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -115,8 +124,16 @@ describe("ingestArticle", () => {
     });
     expect(transaction.onConflictDoNothing).toHaveBeenCalledOnce();
     expect(transaction.chunkValues).toHaveBeenCalledWith([
-      { contentId: "new-content", text: "Introduction text." },
-      { contentId: "new-content", text: "Second section\n\nMore text." },
+      {
+        contentId: "new-content",
+        text: "Introduction text.",
+        embedding: [0.1, 0.2],
+      },
+      {
+        contentId: "new-content",
+        text: "Second section\n\nMore text.",
+        embedding: [0.3, 0.4],
+      },
     ]);
   });
 
