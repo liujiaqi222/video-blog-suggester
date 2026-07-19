@@ -27,9 +27,15 @@ export async function ingestWebDevSimplifiedArticles() {
   // ── 步骤 1：从 RSS 中找出数据库尚未收录的文章 ─────────────────────────
   console.log("[WebDevSimplified] 开始同步 RSS 文章");
   const articles = await getArticlesMissingFromDatabase();
-  console.log("[WebDevSimplified] 找到待入库文章", {
-    count: articles.length,
+  console.log("[WebDevSimplified] 本轮同步计划已确定", {
+    pendingArticleCount: articles.length,
+    batchSize: BATCH_SIZE,
   });
+
+  if (articles.length === 0) {
+    console.log("[WebDevSimplified] 所有 RSS 文章均已收录，本轮无需同步");
+    return { discovered: 0, ingested: 0 };
+  }
 
   // ── 步骤 2：按批并发抓取和入库 ──────────────────────────────────────
   // 每批完成后再处理下一批，防止并发请求数量随文章总数无限增长。
@@ -41,6 +47,14 @@ export async function ingestWebDevSimplifiedArticles() {
   if (failed > 0) {
     console.error("[WebDevSimplified] 部分文章处理失败", { failed });
   }
+
+  console.log("[WebDevSimplified] RSS 同步完成", {
+    pendingArticleCount: articles.length,
+    processedArticleCount: results.length + failed,
+    ingestedArticleCount: ingested,
+    skippedArticleCount: results.length - ingested,
+    failedArticleCount: failed,
+  });
 
   return { discovered: articles.length, ingested };
 }
@@ -70,9 +84,7 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
       return parsed.success ? [parsed.data] : [];
     });
 
-  console.log("[WebDevSimplified] RSS 解析完成", {
-    validArticleCount: rssArticles.length,
-  });
+  console.log("[WebDevSimplified] RSS 解析完成", { rssArticleCount: rssArticles.length });
 
   // ── 步骤 1.2：批量查询已收录的 URL ─────────────────────────────────
   const existingUrls = await db.query.content
@@ -86,9 +98,10 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
   const missingArticles = rssArticles.filter(
     (article) => !existingUrls.includes(article.url),
   );
-  console.log("[WebDevSimplified] 完成已收录文章去重", {
+  console.log("[WebDevSimplified] 已完成 RSS 与数据库去重", {
+    rssArticleCount: rssArticles.length,
     existingArticleCount: existingUrls.length,
-    missingArticleCount: missingArticles.length,
+    pendingArticleCount: missingArticles.length,
   });
 
   return missingArticles;
@@ -175,4 +188,3 @@ export async function ingestArticle(article: Article) {
     return { ingested: true };
   });
 }
-
