@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { chunks, content } from "@/db/schema";
 import { batchExec } from "./utils/batchExec";
 import { z } from "zod";
+import { chunkArticleText } from "./chunking/chunkArticle";
 
 const RSS_URL = "https://blog.webdevsimplified.com/rss.xml";
 // 控制单批并发抓取数，避免 RSS 有大量历史文章时瞬间发出过多请求。
@@ -172,47 +173,3 @@ export async function ingestArticle(article: Article) {
   });
 }
 
-function chunkArticleText(main: ReturnType<ReturnType<typeof load>>) {
-  const chunks: string[] = [];
-  let tokens: string[] = [];
-
-  const flush = () => {
-    // 统一 HTML 格式空白，保证分块文本稳定且便于检索。
-    const text = tokens.join(" ").replace(/\s+/g, " ").trim();
-    if (text) chunks.push(text);
-    tokens = [];
-  };
-
-  const visit = (node: {
-    type?: string;
-    name?: string;
-    data?: string;
-    children?: unknown[];
-  }) => {
-    if (["script", "style", "noscript", "template"].includes(node.name ?? "")) {
-      // 排除脚本、样式和降级内容，避免将非正文写入分块。
-      return;
-    }
-
-    if (node.type === "text" && node.data) {
-      tokens.push(node.data);
-      return;
-    }
-
-    if (node.type === "tag" && node.name === "h2") {
-      // 二级标题是自然的检索边界：先结束上一节，再收集下一节正文。
-      flush();
-    }
-
-    for (const child of node.children ?? []) {
-      visit(child as typeof node);
-    }
-  };
-
-  for (const node of main.contents().toArray()) {
-    visit(node);
-  }
-  flush();
-
-  return chunks;
-}

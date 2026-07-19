@@ -116,7 +116,7 @@ describe("ingestArticle", () => {
     expect(transaction.onConflictDoNothing).toHaveBeenCalledOnce();
     expect(transaction.chunkValues).toHaveBeenCalledWith([
       { contentId: "new-content", text: "Introduction text." },
-      { contentId: "new-content", text: "Second section More text." },
+      { contentId: "new-content", text: "Second section\n\nMore text." },
     ]);
   });
 
