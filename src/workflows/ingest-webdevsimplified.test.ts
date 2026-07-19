@@ -79,7 +79,10 @@ describe("ingestArticle", () => {
   it("skips an article that already exists without fetching or starting a transaction", async () => {
     mockExistingContent({ id: "existing-content" });
 
-    await expect(ingestArticle(article)).resolves.toEqual({ ingested: false });
+    await expect(ingestArticle(article)).resolves.toEqual({
+      ingested: true,
+      created: false,
+    });
 
     expect(fetch).not.toHaveBeenCalled();
     expect(mocks.db.transaction).not.toHaveBeenCalled();
@@ -111,7 +114,10 @@ describe("ingestArticle", () => {
     const transaction = mockTransaction({ id: "new-content" });
     vi.mocked(fetch).mockResolvedValue(new Response(articleHtml));
 
-    await expect(ingestArticle(article)).resolves.toEqual({ ingested: true });
+    await expect(ingestArticle(article)).resolves.toEqual({
+      ingested: true,
+      created: true,
+    });
 
     expect(transaction.contentValues).toHaveBeenCalledWith({
       title: article.title,
@@ -137,12 +143,15 @@ describe("ingestArticle", () => {
     ]);
   });
 
-  it("reports not ingested when a concurrent insert wins the URL conflict", async () => {
+  it("reports success without a new record when a concurrent insert wins the URL conflict", async () => {
     mockExistingContent(undefined);
     const transaction = mockTransaction(undefined);
     vi.mocked(fetch).mockResolvedValue(new Response(articleHtml));
 
-    await expect(ingestArticle(article)).resolves.toEqual({ ingested: false });
+    await expect(ingestArticle(article)).resolves.toEqual({
+      ingested: true,
+      created: false,
+    });
 
     expect(transaction.chunkValues).not.toHaveBeenCalled();
   });

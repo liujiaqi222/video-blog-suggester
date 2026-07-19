@@ -21,6 +21,13 @@ const articleSchema = z.object({
 
 type Article = z.infer<typeof articleSchema>;
 
+type IngestArticleResult = {
+  // 幂等工作流重试时，已存在的记录也表示目标状态已达成。
+  ingested: true;
+  // 区分本次是否实际插入，供上层汇总新增文章数量。
+  created: boolean;
+};
+
 export async function ingestWebDevSimplifiedArticles() {
   "use workflow";
 
@@ -42,7 +49,7 @@ export async function ingestWebDevSimplifiedArticles() {
   const { failed, results } = await batchExec(articles, ingestArticle, {
     batchSize: BATCH_SIZE,
   });
-  const ingested = results.filter((result) => result.ingested).length;
+  const ingested = results.filter((result) => result.created).length;
 
   if (failed > 0) {
     console.error("[WebDevSimplified] 部分文章处理失败", { failed });
@@ -107,7 +114,9 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
   return missingArticles;
 }
 
-export async function ingestArticle(article: Article) {
+export async function ingestArticle(
+  article: Article,
+): Promise<IngestArticleResult> {
   "use step";
 
   // ── 步骤 2.1：再次检查是否已入库 ────────────────────────────────────
@@ -122,7 +131,7 @@ export async function ingestArticle(article: Article) {
     .where(eq(content.url, article.url))
     .limit(1);
   if (existing) {
-    return { ingested: false };
+    return { ingested: true, created: false };
   }
 
   // ── 步骤 2.2：抓取并提取文章主体 ───────────────────────────────────
@@ -172,7 +181,7 @@ export async function ingestArticle(article: Article) {
       .returning({ id: content.id });
 
     if (!insertedContent) {
-      return { ingested: false };
+      return { ingested: true, created: false };
     }
 
     if (chunkTexts.length > 0) {
@@ -185,6 +194,6 @@ export async function ingestArticle(article: Article) {
       );
     }
 
-    return { ingested: true };
+    return { ingested: true, created: true };
   });
 }
