@@ -5,7 +5,7 @@ import { db } from "@/db/db";
 import { chunks, content } from "@/db/schema";
 import { batchExec } from "./utils/batchExec";
 import { z } from "zod";
-import { chunkArticleText } from "./chunking/chunkArticle";
+import { chunkArticleText } from "../lib/chunking/chunkArticle";
 
 const RSS_URL = "https://blog.webdevsimplified.com/rss.xml";
 // 控制单批并发抓取数，避免 RSS 有大量历史文章时瞬间发出过多请求。
