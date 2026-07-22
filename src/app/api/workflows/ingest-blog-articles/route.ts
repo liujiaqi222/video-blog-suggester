@@ -1,12 +1,10 @@
-import { start } from "workflow/api";
 
 import { ingestWebDevSimplifiedArticles } from "@/workflows/ingest-webdevsimplified";
+import { verifyAndRunCron } from "@/workflows/utils/verifyAndRunCron";
+import { NextRequest } from "next/server";
 
-export async function POST() {
-  const run = await start(ingestWebDevSimplifiedArticles);
-
-  return Response.json(
-    { runId: run.runId, status: "started" },
-    { status: 202 },
-  );
+export async function GET(request: NextRequest) {
+  return verifyAndRunCron(request, ingestWebDevSimplifiedArticles)
 }
+
+
