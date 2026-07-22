@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "workflow:view":"npx workflow web",
     "auth:generate": "auth generate --output ./src/db/schemas/auth.ts --config ./src/lib/auth.ts --yes"
   },
   "dependencies": {
