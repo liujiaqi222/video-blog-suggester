@@ -8,8 +8,7 @@ export const serverEnv = createEnv({
     BETTER_AUTH_URL: z.url(),
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
-    // 本地使用lm studio qwen 0.6b模型，远程使用硅基流动qwen 8b模型
-    EMBEDDING_PROVIDER: z.enum(['qwen-0.6b-local','qwen-8b-sf']),
+    EMBEDDING_PROVIDER: z.string(),
     EMBEDDING_BASE_URL:z.url(),
     EMBEDDING_API_KEY: z.string().optional(),
     CRON_SECRET: z.string()

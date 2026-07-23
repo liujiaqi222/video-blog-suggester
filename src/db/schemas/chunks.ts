@@ -13,8 +13,7 @@ export const chunks = snakeCase.table("chunks", {
     .references(() => content.id, { onDelete: "cascade" }),
   startPosition: integer(),
   // Qwen3-Embedding-0.6B 的输出上限为 1024 维；存储约束必须与模型一致。
-  // 远程是4096维度
-  embedding: vector({ dimensions: 4096 }),
+  embedding: vector({ dimensions: 1024 }),
   text: text("text").notNull(),
   ...timestamps
 },
