@@ -2,19 +2,14 @@ import { serverEnv } from "@/data/serverEnv";
 import { createOpenAI, openai } from "@ai-sdk/openai";
 
 
-const QWEN_MODEL = 'text-embedding-qwen3-embedding-0.6b'
-const OPENAI_MODEL = 'text-embedding-3-small'
+const QWEN_LOCAL_MODEL = 'text-embedding-qwen3-embedding-0.6b'
+const QWEN_SF_MODEL = 'Qwen/Qwen3-Embedding-8B'
 
 
-export function getEmbeddingModel(){
-    if(serverEnv.EMBEDDING_PROVIDER==='qwen'){
-        const provider = createOpenAI({
-            baseURL: serverEnv.LOCAL_EMBEDDING_BASE_URL
-        })
+export function getEmbeddingModel() {
+    const provider = createOpenAI({
+        baseURL: serverEnv.EMBEDDING_BASE_URL
+    })
+    return provider.embedding(serverEnv.EMBEDDING_PROVIDER === 'qwen-0.6b-local' ? QWEN_LOCAL_MODEL : QWEN_SF_MODEL)
 
-        return provider.embedding(QWEN_MODEL)
-    }
-    else{
-        return openai.embedding(OPENAI_MODEL)
-    }
 }
