@@ -17,5 +17,9 @@ export const chunks = snakeCase.table("chunks", {
   text: text("text").notNull(),
   ...timestamps
 },
-  table => [index("chunks_content_id_idx").on(table.contentId)]
+  table => [
+    index("chunks_content_id_idx").on(table.contentId),
+    // HNSW 向量索引，加速 cosineDistance 检索；vector_cosine_ops 对应余弦距离算子 <=>。
+    index("chunks_embedding_hnsw_idx").using("hnsw", table.embedding.op("vector_cosine_ops")),
+  ]
 )
