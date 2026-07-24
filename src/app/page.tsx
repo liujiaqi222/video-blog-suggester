@@ -38,24 +38,26 @@ function formatDate(date: Date) {
 }
 
 
+function encodeTextFragment(text: string) {
+  // Text Fragment 将连字符用作前后文分隔符，但 encodeURIComponent 不会编码它。
+  return encodeURIComponent(text).replace(/-/g, "%2D");
+}
+
 function getUrlAtChunkLocation(result: SearchResult) {
   const type = result.type
 
   switch (type) {
     case "article":
       const splitTexts = result.rawText.split('\n')
-      if (splitTexts.length === 1) {
-        return `${result.url}#:~:text=${encodeURIComponent(splitTexts[0])}`
-      } else {
-        return `${result.url}#:~:text=${encodeURIComponent(splitTexts[0])},text=${encodeURIComponent(splitTexts.at(-1) || '')}`
-
-      }
+      console.log(splitTexts)
+      return `${result.url}#:~:text=${encodeTextFragment(splitTexts[0])}`
+     
 
     case 'video':
       return result.url
 
-      default:
-        throw new Error(`Unsupported type ${type satisfies never}`)
+    default:
+      throw new Error(`Unsupported type ${type satisfies never}`)
   }
 }
 
