@@ -28,19 +28,19 @@ type IngestArticleResult = {
   created: boolean;
 };
 
-export async function ingestWebDevSimplifiedArticles() {
+export async function ingestBlogArticles() {
   "use workflow";
 
   // ── 步骤 1：从 RSS 中找出数据库尚未收录的文章 ─────────────────────────
-  console.log("[WebDevSimplified] 开始同步 RSS 文章");
+  console.log("[BlogArticles] 开始同步 RSS 文章");
   const articles = await getArticlesMissingFromDatabase();
-  console.log("[WebDevSimplified] 本轮同步计划已确定", {
+  console.log("[BlogArticles] 本轮同步计划已确定", {
     pendingArticleCount: articles.length,
     batchSize: BATCH_SIZE,
   });
 
   if (articles.length === 0) {
-    console.log("[WebDevSimplified] 所有 RSS 文章均已收录，本轮无需同步");
+    console.log("[BlogArticles] 所有 RSS 文章均已收录，本轮无需同步");
     return { discovered: 0, ingested: 0 };
   }
 
@@ -52,10 +52,10 @@ export async function ingestWebDevSimplifiedArticles() {
   const ingested = results.filter((result) => result.created).length;
 
   if (failed > 0) {
-    console.error("[WebDevSimplified] 部分文章处理失败", { failed });
+    console.error("[BlogArticles] 部分文章处理失败", { failed });
   }
 
-  console.log("[WebDevSimplified] RSS 同步完成", {
+  console.log("[BlogArticles] RSS 同步完成", {
     pendingArticleCount: articles.length,
     processedArticleCount: results.length + failed,
     ingestedArticleCount: ingested,
@@ -70,7 +70,7 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
   "use step";
 
   // ── 步骤 1.1：获取并解析 RSS 条目 ──────────────────────────────────
-  console.log("[WebDevSimplified] 正在获取 RSS feed", { url: RSS_URL });
+  console.log("[BlogArticles] 正在获取 RSS feed", { url: RSS_URL });
   const response = await fetch(RSS_URL);
   if (!response.ok) {
     throw new Error(`Unable to fetch RSS feed: ${response.status}`);
@@ -91,7 +91,7 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
       return parsed.success ? [parsed.data] : [];
     });
 
-  console.log("[WebDevSimplified] RSS 解析完成", { rssArticleCount: rssArticles.length });
+  console.log("[BlogArticles] RSS 解析完成", { rssArticleCount: rssArticles.length });
 
   // ── 步骤 1.2：批量查询已收录的 URL ─────────────────────────────────
   const existingUrls = await db.query.content
@@ -105,7 +105,7 @@ async function getArticlesMissingFromDatabase(): Promise<Article[]> {
   const missingArticles = rssArticles.filter(
     (article) => !existingUrls.includes(article.url),
   );
-  console.log("[WebDevSimplified] 已完成 RSS 与数据库去重", {
+  console.log("[BlogArticles] 已完成 RSS 与数据库去重", {
     rssArticleCount: rssArticles.length,
     existingArticleCount: existingUrls.length,
     pendingArticleCount: missingArticles.length,
@@ -121,7 +121,7 @@ export async function ingestArticle(
 
   // ── 步骤 2.1：再次检查是否已入库 ────────────────────────────────────
   // 列表步骤完成后工作流仍可能重试，因此这里需要再次去重。
-  console.log("[WebDevSimplified] 开始处理文章", {
+  console.log("[BlogArticles] 开始处理文章", {
     title: article.title,
     url: article.url,
   });

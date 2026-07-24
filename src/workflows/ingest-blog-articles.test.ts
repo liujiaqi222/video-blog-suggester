@@ -13,7 +13,7 @@ vi.mock("@/lib/embedding/embed-chunks", () => ({
   embedChunks: mocks.embedChunks,
 }));
 
-import { ingestArticle } from "./ingest-webdevsimplified";
+import { ingestArticle } from "./ingest-blog-articles";
 
 const article = {
   title: "A useful article",
