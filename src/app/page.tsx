@@ -37,6 +37,29 @@ function formatDate(date: Date) {
   });
 }
 
+
+function getUrlAtChunkLocation(result: SearchResult) {
+  const type = result.type
+
+  switch (type) {
+    case "article":
+      const splitTexts = result.rawText.split('\n')
+      if (splitTexts.length === 1) {
+        return `${result.url}#:~:text=${encodeURIComponent(splitTexts[0])}`
+      } else {
+        return `${result.url}#:~:text=${encodeURIComponent(splitTexts[0])},text=${encodeURIComponent(splitTexts.at(-1) || '')}`
+
+      }
+
+    case 'video':
+      return result.url
+
+      default:
+        throw new Error(`Unsupported type ${type satisfies never}`)
+  }
+}
+
+
 export default function Home() {
   const { data: session, isPending } = authClient.useSession();
   const [query, setQuery] = useState("");
@@ -212,11 +235,11 @@ export default function Home() {
                   <li className="border-b border-black/10" key={`${item.url}-${index}`}>
                     <a
                       className="group flex gap-4 py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black sm:gap-6"
-                      href={item.url}
+                      href={getUrlAtChunkLocation(item)}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      <div className="relative h-[72px] w-24 shrink-0 overflow-hidden rounded-md bg-black/5 outline outline-1 -outline-offset-1 outline-black/10 sm:h-20 sm:w-28">
+                      <div className="relative h-18 w-24 shrink-0 overflow-hidden rounded-md bg-black/5  outline-1 -outline-offset-1 outline-black/10 sm:h-20 sm:w-28">
                         <Image
                           alt=""
                           className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
